@@ -31,7 +31,7 @@ class PanoViewController: UIViewController {
         _mtkView = MTKView(frame: self.view.frame)
         self.view = _mtkView
 
-        _renderer = Renderer()
+        _renderer = Renderer(_mtkView)
         _mtkView.delegate = _renderer
     }
     
