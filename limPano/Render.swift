@@ -9,6 +9,16 @@ import UIKit
 import MetalKit
 import CoreGraphics
 
+struct SampleVertex {
+    var position: vector_float4
+    var textureCoordinate: vector_float2
+    
+    init(_ position: vector_float4, _ textureCoordinate: vector_float2) {
+        self.position = position
+        self.textureCoordinate = textureCoordinate
+    }
+}
+
 class  Renderer: NSObject, MTKViewDelegate {
     
     // MARK: Metal objects
@@ -20,6 +30,7 @@ class  Renderer: NSObject, MTKViewDelegate {
     private var _verticesBuffer: MTLBuffer!
     private var _fragmentBuffer: MTLBuffer!
     private var _texture: MTLTexture!
+    private var _numberVertices: Int!
     
     init(_ mtkView: MTKView) {
         super.init()
@@ -32,7 +43,13 @@ class  Renderer: NSObject, MTKViewDelegate {
         
         let library = _device.makeDefaultLibrary()!
         _renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
         // load MSL here
+        let vertexFunction = library.makeFunction(name: "vertexShader")
+        let fragmentFunction = library.makeFunction(name: "samplingShader")
+        _renderPipelineDescriptor.vertexFunction = vertexFunction
+        _renderPipelineDescriptor.fragmentFunction = fragmentFunction
+        
         _renderPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
         _renderPipelineDescriptor.sampleCount = _sampleCount
 
@@ -46,6 +63,18 @@ class  Renderer: NSObject, MTKViewDelegate {
         mtkView.isOpaque = true
 
         _commandQueue = _device.makeCommandQueue()!
+        
+        // MARK: Setup Vertex
+        let quadVertices: [SampleVertex] = [
+            SampleVertex(SIMD4<Float>(0.5, -0.5, 0.0, 1.0), SIMD2<Float>(1,1)),
+            SampleVertex(SIMD4<Float>(0.5, -0.5, 0.0, 1.0), SIMD2<Float>(0,1)),
+            SampleVertex(SIMD4<Float>(0.5, 0.5, 0.0, 1.0), SIMD2<Float>(0,0)),
+            SampleVertex(SIMD4<Float>(0.5, -0.5, 0.0, 1.0), SIMD2<Float>(1,1)),
+            SampleVertex(SIMD4<Float>(-0.5, 0.5, 0.0, 1.0), SIMD2<Float>(0,0)),
+            SampleVertex(SIMD4<Float>(0.5, 0.5, 0.0, 1.0), SIMD2<Float>(1,0)),
+        ]
+        self._numberVertices = MemoryLayout.size(ofValue: quadVertices)/MemoryLayout<SampleVertex>.size
+        self._verticesBuffer = mtkView.device?.makeBuffer(bytes: quadVertices, length: 4*MemoryLayout.size(ofValue: quadVertices), options: MTLResourceOptions.storageModeShared)
 
         mtkView.delegate = self
         
@@ -59,8 +88,10 @@ class  Renderer: NSObject, MTKViewDelegate {
         let origin = MTLOrigin(x: 0, y: 0, z: 0)
         let size = MTLSize(width: 2000, height: 1000, depth: 1)
         let region = MTLRegion(origin: origin, size: size)
-        let imageBytes = self.loadImage(image: image!)
-        self._texture.replace(region: region, mipmapLevel: 0, withBytes: imageBytes, bytesPerRow: 4*Int(image!.size.width))
+        var imageBytes = self.loadImage(image: image!)
+
+        self._texture.replace(region: region, mipmapLevel: 0, withBytes: imageBytes, bytesPerRow: 8*Int(image!.size.width))
+
     }
     
     func loadImage(image: UIImage) -> [UInt8] {
@@ -80,6 +111,20 @@ class  Renderer: NSObject, MTKViewDelegate {
     }
     
     func draw(in view: MTKView) {
+        let commandBuffer = self._commandQueue.makeCommandBuffer()
+        let renderPassDescriptor = view.currentRenderPassDescriptor
         
+        if(renderPassDescriptor != nil) {
+            renderPassDescriptor?.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+            let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor!);
+            renderEncoder!.setViewport(MTLViewport(originX: 0, originY: 0, width: Double(view.drawableSize.width), height: Double(view.drawableSize.height ), znear: 0, zfar: 10000))
+            renderEncoder?.setRenderPipelineState(self._renderPipelineState)
+            renderEncoder?.setVertexBuffer(self._verticesBuffer, offset: 0, index: 0)
+            renderEncoder?.setFragmentTexture(self._texture, index: 0)
+            renderEncoder?.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: 6)
+            renderEncoder?.endEncoding()
+            commandBuffer?.present(view.currentDrawable as! MTLDrawable)
+        }
+        commandBuffer?.commit()
     }
 }

@@ -13,6 +13,7 @@
 		F716F46F253445A7002B5438 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F716F46E253445A7002B5438 /* Preview Assets.xcassets */; };
 		F716F4782535A037002B5438 /* PanoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F716F4772535A037002B5438 /* PanoViewController.swift */; };
 		F716F47B2535AC2A002B5438 /* Render.swift in Sources */ = {isa = PBXBuildFile; fileRef = F716F47A2535AC2A002B5438 /* Render.swift */; };
+		F716F48225399D71002B5438 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = F716F48125399D71002B5438 /* Shader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		F716F470253445A7002B5438 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F716F4772535A037002B5438 /* PanoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanoViewController.swift; sourceTree = "<group>"; };
 		F716F47A2535AC2A002B5438 /* Render.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Render.swift; sourceTree = "<group>"; };
+		F716F48125399D71002B5438 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				F716F46B253445A7002B5438 /* Assets.xcassets */,
 				F716F470253445A7002B5438 /* Info.plist */,
 				F716F46D253445A7002B5438 /* Preview Content */,
+				F716F48125399D71002B5438 /* Shader.metal */,
 			);
 			path = limPano;
 			sourceTree = "<group>";
@@ -147,6 +150,7 @@
 				F716F46A253445A6002B5438 /* ContentView.swift in Sources */,
 				F716F468253445A6002B5438 /* limPanoApp.swift in Sources */,
 				F716F4782535A037002B5438 /* PanoViewController.swift in Sources */,
+				F716F48225399D71002B5438 /* Shader.metal in Sources */,
 				F716F47B2535AC2A002B5438 /* Render.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
